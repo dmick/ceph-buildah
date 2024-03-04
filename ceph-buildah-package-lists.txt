@@ -1,0 +1,106 @@
+# package lists.
+
+CEPHFS_PACKAGES="\
+	ceph-mds \
+	cephfs-mirror"
+
+CEPH_MGR_PACKAGES="\
+	ceph-mgr \
+	ceph-mgr-cephadm \
+	ceph-mgr-dashboard \
+	ceph-mgr-diskprediction-local \
+	ceph-mgr-k8sevents \
+	ceph-mgr-rook \
+	python3-saml"
+
+CEPH_GRAFANA_PACKAGES="\
+	ceph-grafana-dashboards"
+
+UTIL_PACKAGES="\
+	procps-ng \
+	hostname"
+
+RADOSGW_PACKAGES="\
+	ceph-radosgw \
+	libradosstriper1 \
+	gcc \
+	lua-devel \
+	luarocks"
+
+GANESHA_PACKAGES="\
+	nfs-ganesha \
+	nfs-ganesha-ceph \
+	nfs-ganesha-rgw \
+	nfs-ganesha-rados-grace \
+	nfs-ganesha-rados-urls \
+	sssd-client \
+	dbus-daemon \
+	rpcbind"
+
+ISCSI_PACKAGES="\
+	tcmu-runner \
+	ceph-iscsi \
+	python3-rtslib"
+
+CSI_PACKAGES="\
+	attr \
+	ceph-fuse \
+	rbd-nbd"
+
+if [[ "${OSD_FLAVOR}" == "crimson" ]]; then
+	CRIMSON_PACKAGES="ceph-crimson-osd"
+fi
+
+CEPH_IMMUTABLE_OBJECT_CACHE_PACKAGES="\
+	ceph-immutable-object-cache"
+
+# XXX 
+if [[ "${EL_VERSION}" == "8" ]]; then
+	SCIKIT_LEARN_PACKAGES=python3-scikit-learn
+else
+	SCIKIT_LEARN_PACKAGES=
+fi
+
+CEPH_VOLUME_PACKAGES="\
+	ceph-volume"
+
+CEPH_EXPORTER_PACKAGES="\
+	ceph-exporter"
+
+CEPH_NODE_PROXY_PACKAGES="\
+	ceph-node-proxy"
+
+# XXX
+CEPH_IBM_PACKAGES=""
+
+CEPH_BASE_PACKAGES="\
+	ca-certificates \
+	e2fsprogs \
+	ceph-common  \
+	ceph-mon  \
+	ceph-osd \
+	cephfs-top \
+	${CEPHFS_PACKAGES} \
+	rbd-mirror \
+	${CEPH_MGR_PACKAGES} \
+	${CEPH_GRAFANA_PACKAGES} \
+	kmod \
+	lvm2 \
+	gdisk \
+	smartmontools \
+	nvme-cli \
+	libstoragemgmt \
+	systemd-udev \
+	sg3_utils \
+	${UTIL_PACKAGES} \
+	${RADOSGW_PACKAGES} \
+	${GANESHA_PACKAGES} \
+	${ISCSI_PACKAGES} \
+	${CSI_PACKAGES} \
+	${CRIMSON_PACKAGES} \
+	${CEPH_IMMUTABLE_OBJECT_CACHE_PACKAGES} \
+	${SCIKIT_LEARN_PACKAGES} \
+	${CEPH_VOLUME_PACKAGES} \
+	${CEPH_EXPORTER_PACKAGES} \
+	${CEPH_NODE_PROXY_PACKAGES} \
+	${CEPH_IBM_PACKAGES}"
