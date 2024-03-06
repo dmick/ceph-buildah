@@ -155,7 +155,13 @@ fi
 
 
 # XXX this might vary, 8 to 9.  definitely varies depending on ganesha/iscsi/etc.
-buildah run ${working_container} yum install -y --setopt=install_weak_deps=False --enablerepo=crb  ${CEPH_BASE_PACKAGES}
+if [[ ${EL_VERSION} -eq 8 ]] ; then
+	enable=powertools
+else
+	enable=crb
+fi
+buildah run ${working_container} yum install -y --setopt=install_weak_deps=False --enablerepo=${enable}  ${CEPH_BASE_PACKAGES}
+
 
 INITIAL_SIZE=$(buildah run ${working_container} -- bash -c 'sz="$(du -sm --exclude=/proc /)" ; echo "${sz%*/}"')
 
