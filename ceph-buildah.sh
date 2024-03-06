@@ -1,4 +1,4 @@
-#!/bin/bash -ex 
+#!/bin/bash -e 
 # required args:
 # CEPH_VERSION  alpha branchname/version string
 # OSD_FLAVOR (crimson)
@@ -10,14 +10,21 @@
 # final commit to image tag
 
 # inputs
-CEPH_VERSION=main
-OSD_FLAVOR=default
-EL_VERSION=9
-CEPH_REF=main
-GIT_BRANCH=main
+CEPH_VERSION=${CEPH_VERSION:-main}
+OSD_FLAVOR=${OSD_FLAVOR:-default}
+EL_VERSION=${EL_VERSION:-9}
+CEPH_REF=${CEPH_REF:-${CEPH_VERSION}}
+GIT_BRANCH=${GIT_BRANCH:-${CEPH_VERSION}}
 ARCH=$(arch)
 if [[ "${ARCH}" == "aarch64" ]] ; then ARCH="arm64"; fi
+echo "CEPH_VERSION=${CEPH_VERSION}"
+echo "OSD_FLAVOR=${OSD_FLAVOR}"
+echo "EL_VERSION=${EL_VERSION}"
+echo "CEPH_REF=${CEPH_REF}"
+echo "GIT_BRANCH=${GIT_BRANCH}"
+echo "ARCH=${ARCH}"
 
+set -x
 DAEMON_BASE_TAG=ceph/daemon-base:${GIT_BRANCH}-${ARCH}
 BASE_IMAGE=centos:stream${EL_VERSION}
 
@@ -44,9 +51,7 @@ buildah config --label RELEASE="wip-c9-${working_container}-add-arm64" work
 buildah config --label GIT_REPO="git@github.com:ceph/ceph-container" ${working_container}
 
 # What was the git branch used to build this container
-buildah config --label GIT_BRANCH="wip-c9-${working_container}-add-arm64" work
-
-# What was the commit ID of the current HEAD
+buildah config --label GIT_BRANCH="wip-c9-${working_container}-add-arm64" work # What was the commit ID of the current HEAD
 buildah config --label GIT_COMMIT="38587130b387d65d30b4f151b8686954be7a21c1" ${working_container}
 
 # Was the repository clean when building ?
