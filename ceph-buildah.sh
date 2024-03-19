@@ -1,18 +1,18 @@
-#!/bin/bash -e 
+#!/bin/bash -e
 # required args:
 # CEPH_VERSION  alpha branchname/version string
 # OSD_FLAVOR (crimson)
 # EL_VERSION (8/9)
 # CEPH_REF git branch (for shaman)
 
-### todo 
+### todo
 # conditional package lists for all the bits other than iscsi and ganesha
 # final commit to image tag
 
 # inputs
 CEPH_VERSION=${CEPH_VERSION:-main}
-OSD_FLAVOR=${OSD_FLAVOR:-default}
-EL_VERSION=${EL_VERSION:-9}
+OSD_FLAVOR=${OSD_FLAVOR:-crimson}
+EL_VERSION=${EL_VERSION:-8}
 CEPH_REF=${CEPH_REF:-${CEPH_VERSION}}
 GIT_BRANCH=${GIT_BRANCH:-${CEPH_VERSION}}
 ARCH=$(arch)
@@ -82,9 +82,9 @@ if [[ "${CEPH_VERSION}" =~ master|main|reef|squid ]]; then
 	BASEURL="https://buildlogs.centos.org/centos/\$releasever-stream/storage/\$basearch/nfsganesha-5/"
 elif [[ "${CEPH_VERSION}" =~ quincy ]]; then
 	BASEURL="https://buildlogs.centos.org/centos/\$releasever/storage/\$basearch/nfsganesha-4/"
-elif [[ "${CEPH_VERSION}" == pacific ]]; then 
+elif [[ "${CEPH_VERSION}" == pacific ]]; then
 	BASEURL="https://download.ceph.com/nfs-ganesha/rpm-V3.5-stable/$CEPH_VERSION/el\$releasever/\$basearch/"
-elif [[ "${CEPH_VERSION}" == octopus ]]; then 
+elif [[ "${CEPH_VERSION}" == octopus ]]; then
 	BASEURL="https://download.ceph.com/nfs-ganesha/rpm-V3.3-stable/$CEPH_VERSION/el\$releasever/\$basearch/"
 elif [[ "${CEPH_VERSION}" == nautilus ]]; then
 	BASEURL="https://download.ceph.com/nfs-ganesha/rpm-V2.8-stable/$CEPH_VERSION/\$basearch/"
@@ -160,6 +160,16 @@ if [[ ${EL_VERSION} -eq 8 ]] ; then
 else
 	enable=crb
 fi
+
+#
+# copr for CentOS 8stream's libprotobuf dependency (somehow EPEL8 supplies
+# grpc-devel but not libprotobuf that it requires
+#
+
+if [[ ${EL_VERSION} -eq 8 ]] ; then
+	buildah run ${working_container} dnf copr enable -y ceph/grpc
+fi
+
 buildah run ${working_container} yum install -y --setopt=install_weak_deps=False --enablerepo=${enable}  ${CEPH_BASE_PACKAGES}
 
 
@@ -170,10 +180,10 @@ echo 'Postinstall cleanup'
 buildah run ${working_container} -- rm -rf "/usr/bin/hyperkube /usr/bin/etcd /usr/bin/systemd-analyze /usr/share/hwdata/{iab.txt,oui.txt} /etc/profile.d/lang.sh"
 buildah run ${working_container} -- yum clean all
 
-buildah run ${working_container} -- sed -i -e 's/udev_rules = 1/udev_rules = 0/' -e 's/udev_sync = 1/udev_sync = 0/' -e 's/obtain_device_list_from_udev = 1/obtain_device_list_from_udev = 0/' /etc/lvm/lvm.conf 
+buildah run ${working_container} -- sed -i -e 's/udev_rules = 1/udev_rules = 0/' -e 's/udev_sync = 1/udev_sync = 0/' -e 's/obtain_device_list_from_udev = 1/obtain_device_list_from_udev = 0/' /etc/lvm/lvm.conf
 
 buildah run ${working_container} -- mkdir -p /var/run/ganesha
-    
+
 # Clean common files like /tmp, /var/lib, etc.
 buildah run ${working_container} rm -rf \
         /etc/{selinux,systemd,udev} \
@@ -200,7 +210,7 @@ buildah run ${working_container} -- find /var/log/ -type f -exec truncate -s 0 '
 
 # Report size savings (strip / from end)
 FINAL_SIZE="$(buildah run ${working_container} -- bash -c 'sz="$(du -sm --exclude=/proc /)" ; echo "${sz%*/}"')"
-REMOVED_SIZE=$((INITIAL_SIZE - FINAL_SIZE)) 
+REMOVED_SIZE=$((INITIAL_SIZE - FINAL_SIZE))
 
 # Verify that the packages installed haven't been accidentally cleaned
 buildah run ${working_container} -- rpm -q ${CEPH_BASE_PACKAGES} && echo 'Packages verified successfully'
