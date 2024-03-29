@@ -11,11 +11,11 @@
 
 # inputs
 CEPH_VERSION=${CEPH_VERSION:-main}
-OSD_FLAVOR=${OSD_FLAVOR:-crimson}
+OSD_FLAVOR=${OSD_FLAVOR:-default}
 EL_VERSION=${EL_VERSION:-8}
 CEPH_REF=${CEPH_REF:-${CEPH_VERSION}}
 GIT_BRANCH=${GIT_BRANCH:-${CEPH_VERSION}}
-ARCH=$(arch)
+ARCH=x86_64
 if [[ "${ARCH}" == "aarch64" ]] ; then ARCH="arm64"; fi
 echo "CEPH_VERSION=${CEPH_VERSION}"
 echo "OSD_FLAVOR=${OSD_FLAVOR}"
@@ -25,12 +25,13 @@ echo "GIT_BRANCH=${GIT_BRANCH}"
 echo "ARCH=${ARCH}"
 
 set -x
-DAEMON_BASE_TAG=ceph/daemon-base:${GIT_BRANCH}-${ARCH}
+# XXX
+DAEMON_BASE_TAG=ceph/daemon-base:${GIT_BRANCH}-el${EL_VERSION}-${OSD_FLAVOR}-${ARCH}
 BASE_IMAGE=centos:stream${EL_VERSION}
 
 working_container=work
 
-. ./ceph-buildah-package-lists.txt
+. ./package-lists.txt
 
 buildah rm ${working_container} || true
 
