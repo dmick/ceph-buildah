@@ -1,5 +1,9 @@
-FROM quay.io/centos/centos:stream8
+ARG FROM_IMAGE="quay.io/centos/centos:stream8"
+FROM $FROM_IMAGE
 
+# allow FROM_IMAGE to be visible inside this stage
+ARG FROM_IMAGE
+#
 # The name of the Ceph release.
 # e.g., "main", "reef", "qincy"
 ARG CEPH_VERSION_NAME="main"
@@ -196,4 +200,6 @@ ENV CEPH_VERSION_NAME="${CEPH_VERSION_NAME}" \
     GANESHA_PACKAGE_VERSION="${GANESHA_PACKAGE_VERSION}" \
     CEPH_IS_DEVEL="${IS_DEVEL}" \
     CEPH_REF="${CEPH_REF}" \
-    CEPH_OSD_FLAVOR="${CEPH_OSD_FLAVOR}"
+    CEPH_OSD_FLAVOR="${CEPH_OSD_FLAVOR}" \
+    FROM_IMAGE="${FROM_IMAGE}"
+
