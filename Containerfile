@@ -9,6 +9,9 @@ ARG CEPH_VERSION_NAME="main"
 # e.g., "-18.2.0"
 ARG CEPH_PACKAGE_VERSION=
 
+# (optional) Define the baseurl= for the ganesha.repo
+ARG GANESHA_REPO_BASEURL="https://buildlogs.centos.org/centos/\$releasever-stream/storage/\$basearch/nfsganesha-5/"
+
 # (optional) Choose a specific NFS-Ganesha package version to install
 # This value is appended directly to nfs-ganesha packages to select their version
 # e.g., "-5.5-1.el8s"
@@ -45,7 +48,7 @@ RUN dnf install -y --setopt=install_weak_deps=False epel-release jq
 RUN \
     echo "[ganesha]" > /etc/yum.repos.d/ganesha.repo && \
     echo "name=ganesha" >> /etc/yum.repos.d/ganesha.repo && \
-    echo "baseurl=http://mirror.centos.org/centos/8-stream/storage/\$basearch/nfsganesha-5/" >> /etc/yum.repos.d/ganesha.repo && \
+    echo "baseurl=${GANESHA_REPO_BASEURL}" >> /etc/yum.repos.d/ganesha.repo && \
     echo "gpgcheck=0" >> /etc/yum.repos.d/ganesha.repo && \
     echo "enabled=1" >> /etc/yum.repos.d/ganesha.repo
 
