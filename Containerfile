@@ -91,92 +91,76 @@ RUN \
 RUN dnf update -y --setopt=install_weak_deps=False
 
 # Define and install packages
-RUN \
-    # General
-    PACKAGES="ca-certificates" && \
-    # Ceph
-    # TODO: remove lua-devel and luarocks once they are present in ceph.spec.in
-    #       ref: https://github.com/ceph/ceph/pull/54575#discussion_r1401199635
-    PACKAGES="$PACKAGES \
-        ceph-common${CEPH_PACKAGE_VERSION} \
-        ceph-exporter${CEPH_PACKAGE_VERSION} \
-        ceph-grafana-dashboards${CEPH_PACKAGE_VERSION} \
-        ceph-immutable-object-cache${CEPH_PACKAGE_VERSION} \
-        ceph-mds${CEPH_PACKAGE_VERSION} \
-        ceph-mgr-cephadm${CEPH_PACKAGE_VERSION} \
-        ceph-mgr-dashboard${CEPH_PACKAGE_VERSION} \
-        ceph-mgr-diskprediction-local${CEPH_PACKAGE_VERSION} \
-        ceph-mgr-k8sevents${CEPH_PACKAGE_VERSION} \
-        ceph-mgr-rook${CEPH_PACKAGE_VERSION} \
-        ceph-mgr${CEPH_PACKAGE_VERSION} \
-        ceph-mon${CEPH_PACKAGE_VERSION} \
-        ceph-osd${CEPH_PACKAGE_VERSION} \
-        ceph-radosgw${CEPH_PACKAGE_VERSION} lua-devel luarocks \
-        ceph-volume${CEPH_PACKAGE_VERSION} \
-        cephfs-mirror${CEPH_PACKAGE_VERSION} \
-        cephfs-top${CEPH_PACKAGE_VERSION} \
-        kmod \
-        libradosstriper1${CEPH_PACKAGE_VERSION} \
-        rbd-mirror${CEPH_PACKAGE_VERSION} \
-        " && \
-    # Optional crimson package(s)
-    if [ "${OSD_FLAVOR}" == "crimson" ]; then \
-        PACKAGES="$PACKAGES \
-        ceph-crimson-osd${CEPH_PACKAGE_VERSION} \
-        " ;\
-    fi && \
-    # Ceph "Recommends"
-    PACKAGES="$PACKAGES \
-        nvme-cli \
-        python3-saml \
-        smartmontools \
-        " && \
-    # NFS-Ganesha
-    PACKAGES="$PACKAGES \
-        dbus-daemon \
-        nfs-ganesha-ceph${GANESHA_PACKAGE_VERSION} \
-        nfs-ganesha-rados-grace${GANESHA_PACKAGE_VERSION} \
-        nfs-ganesha-rados-urls${GANESHA_PACKAGE_VERSION} \
-        nfs-ganesha-rgw${GANESHA_PACKAGE_VERSION} \
-        nfs-ganesha${GANESHA_PACKAGE_VERSION} \
-        rpcbind \
-        sssd-client \
-        " && \
-    # ISCSI
-    PACKAGES="$PACKAGES \
-        ceph-iscsi \
-        tcmu-runner \
-        python3-rtslib \
-        " && \
-    # Ceph-CSI
-    # TODO: coordinate with @Madhu-1 to have Ceph-CSI install these itself if unused by ceph
-    #       @adk3798 does cephadm use these?
-    PACKAGES="$PACKAGES \
-        attr \
-        ceph-fuse${CEPH_PACKAGE_VERSION} \
-        rbd-nbd${CEPH_PACKAGE_VERSION} \
-        " && \
-    # Rook (only if packages must be in ceph container image)
-    PACKAGES="$PACKAGES \
-        systemd-udev \
-        " && \
-    # Util packages (should be kept to only utils that are truly very useful)
-    # 'sgdisk' (from gdisk) is used in docs and scripts for clearing disks (could be a risk? @travisn @guits @ktdreyer ?)
-    # 'ps' (from procps-ng) and 'hostname' are very valuable for debugging and CI
-    # TODO: remove sg3_utils once they are moved to ceph.spec.in with libstoragemgmt
-    #       ref: https://github.com/ceph/ceph-container/pull/2013#issuecomment-1248606472
-    PACKAGES="$PACKAGES \
-        gdisk \
-        hostname \
-        procps-ng \
-        sg3_utils \
-        " && \
-    echo ${PACKAGES} > packages.txt && \
-    echo "=== PACKAGES TO BE INSTALLED ===" && \
-    cat packages.txt && \
-    echo "=== INSTALLING ===" && \
-    dnf install -y --setopt=install_weak_deps=False --setopt=skip_missing_names_on_install=False --enablerepo=powertools $(cat packages.txt) && \
-    mkdir -p /var/run/ganesha
+# General
+RUN echo "ca-certificates" > packages.txt
+# Ceph
+# TODO: remove lua-devel and luarocks once they are present in ceph.spec.in
+#       ref: https://github.com/ceph/ceph/pull/54575#discussion_r1401199635
+RUN echo \
+"ceph-common${CEPH_PACKAGE_VERSION} \
+ceph-exporter${CEPH_PACKAGE_VERSION} \
+ceph-grafana-dashboards${CEPH_PACKAGE_VERSION} \
+ceph-immutable-object-cache${CEPH_PACKAGE_VERSION} \
+ceph-mds${CEPH_PACKAGE_VERSION} \
+ceph-mgr-cephadm${CEPH_PACKAGE_VERSION} \
+ceph-mgr-dashboard${CEPH_PACKAGE_VERSION} \
+ceph-mgr-diskprediction-local${CEPH_PACKAGE_VERSION} \
+ceph-mgr-k8sevents${CEPH_PACKAGE_VERSION} \
+ceph-mgr-rook${CEPH_PACKAGE_VERSION} \
+ceph-mgr${CEPH_PACKAGE_VERSION} \
+ceph-mon${CEPH_PACKAGE_VERSION} \
+ceph-osd${CEPH_PACKAGE_VERSION} \
+ceph-radosgw${CEPH_PACKAGE_VERSION} lua-devel luarocks \
+ceph-volume${CEPH_PACKAGE_VERSION} \
+cephfs-mirror${CEPH_PACKAGE_VERSION} \
+cephfs-top${CEPH_PACKAGE_VERSION} \
+kmod \
+libradosstriper1${CEPH_PACKAGE_VERSION} \
+rbd-mirror${CEPH_PACKAGE_VERSION}" \
+>> packages.txt
+
+# Optional crimson package(s)
+RUN if [ "${OSD_FLAVOR}" == "crimson" ]; then \
+    echo "ceph-crimson-osd${CEPH_PACKAGE_VERSION}" >> packages.txt ; \
+fi
+
+# Ceph "Recommends"
+RUN echo "nvme-cli python3-saml smartmontools" >> packages.txt
+# NFS-Ganesha
+RUN echo "\
+dbus-daemon \
+nfs-ganesha-ceph${GANESHA_PACKAGE_VERSION} \
+nfs-ganesha-rados-grace${GANESHA_PACKAGE_VERSION} \
+nfs-ganesha-rados-urls${GANESHA_PACKAGE_VERSION} \
+nfs-ganesha-rgw${GANESHA_PACKAGE_VERSION} \
+nfs-ganesha${GANESHA_PACKAGE_VERSION} \
+rpcbind \
+sssd-client" >> packages.txt
+
+# ISCSI
+RUN echo "ceph-iscsi tcmu-runner python3-rtslib" >> packages.txt
+
+# Ceph-CSI
+# TODO: coordinate with @Madhu-1 to have Ceph-CSI install these itself if unused by ceph
+#       @adk3798 does cephadm use these?
+RUN echo "attr ceph-fuse${CEPH_PACKAGE_VERSION} rbd-nbd${CEPH_PACKAGE_VERSION}"  >> packages.txt
+
+# Rook (only if packages must be in ceph container image)
+RUN echo "systemd-udev" >> packages.txt
+
+# Util packages (should be kept to only utils that are truly very useful)
+# 'sgdisk' (from gdisk) is used in docs and scripts for clearing disks (could be a risk? @travisn @guits @ktdreyer ?)
+# 'ps' (from procps-ng) and 'hostname' are very valuable for debugging and CI
+# TODO: remove sg3_utils once they are moved to ceph.spec.in with libstoragemgmt
+#       ref: https://github.com/ceph/ceph-container/pull/2013#issuecomment-1248606472
+RUN echo "gdisk hostname procps-ng sg3_utils" >>packages.txt
+
+RUN echo "=== PACKAGES TO BE INSTALLED ==="; cat packages.txt
+RUN echo "=== INSTALLING ===" ; \
+dnf install -y --setopt=install_weak_deps=False --setopt=skip_missing_names_on_install=False --enablerepo=powertools $(cat packages.txt)
+
+# XXX why isn't this done in the ganesha package?
+RUN mkdir -p /var/run/ganesha
 
 # Disable sync with udev since the container can not contact udev
 RUN \
