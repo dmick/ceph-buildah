@@ -78,12 +78,11 @@ RUN set -x && \
     rpm -Uvh "$REPO_URL/noarch/ceph-release-1-${IS_RELEASE}.el8.noarch.rpm"
 
 # Copr repos
-# scikit for mgr-diskpredition-local, asyncssh for cephadm, but why do we
+# scikit for mgr-diskprediction-local
 # ref: https://github.com/ceph/ceph-container/pull/1821
 RUN \
     dnf install -y --setopt=install_weak_deps=False dnf-plugins-core && \
-    dnf copr enable -y tchaikov/python-scikit-learn && \
-    dnf copr enable -y tchaikov/python3-asyncssh
+    dnf copr enable -y tchaikov/python-scikit-learn
 
 # Update package mgr
 RUN dnf update -y --setopt=install_weak_deps=False
