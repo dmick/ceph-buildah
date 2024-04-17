@@ -12,10 +12,10 @@
 function stderr() { printf "%s\n" "$*" >&2; }
 
 # inputs
-CEPH_VERSION=${CEPH_VERSION:-main}
+CEPH_VERSION=${CEPH_VERSION:-squid}
 OSD_FLAVOR=${OSD_FLAVOR:-default}
-EL_VERSION=${EL_VERSION:-8}
-CEPH_REF=${CEPH_REF:-${CEPH_VERSION}}
+EL_VERSION=${EL_VERSION:-9}
+CEPH_REF=${CEPH_REF:-${CEPH_VERSIoN}}
 GIT_BRANCH=${GIT_BRANCH:-${CEPH_VERSION}}
 ARCH=x86_64
 if [[ "${ARCH}" == "aarch64" ]] ; then ARCH="arm64"; fi
