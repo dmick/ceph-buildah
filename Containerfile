@@ -175,7 +175,7 @@ RUN \
     echo "=== PACKAGES TO BE INSTALLED ===" && \
     cat packages.txt && \
     echo "=== INSTALLING ===" && \
-    dnf install -y --setopt=install_weak_deps=False --enablerepo=powertools $(cat packages.txt) && \
+    dnf install -y --setopt=install_weak_deps=False --setopt=skip_missing_names_on_install=False --enablerepo=powertools $(cat packages.txt) && \
     mkdir -p /var/run/ganesha
 
 # Disable sync with udev since the container can not contact udev
