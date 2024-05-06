@@ -1,8 +1,10 @@
 #!/bin/bash -ex
 
 CFILE=${1:-Containerfile}
+shift
 
-image_id=$(podman build --squash -q -f $CFILE)
+podman build --squash  -f $CFILE "${@}" 2>&1 | tee ${0}.out
+image_id=$(tail -1 ${0}.out)
 
 # inspect notes:
 # we want .Architecture and everyting in .Config.Env
