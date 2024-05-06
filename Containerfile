@@ -11,7 +11,7 @@ ARG CEPH_VERSION_NAME="main"
 # (optional) Choose a specific Ceph package version to install
 # This value is appended directly to ceph packages to select their version
 # e.g., "-18.2.0"
-ARG CEPH_PACKAGE_VERSION=
+ARG CEPH_PACKAGE_VERSION=""
 
 # (optional) Define the baseurl= for the ganesha.repo
 ARG GANESHA_REPO_BASEURL="https://buildlogs.centos.org/centos/\$releasever-stream/storage/\$basearch/nfsganesha-5/"
@@ -19,7 +19,7 @@ ARG GANESHA_REPO_BASEURL="https://buildlogs.centos.org/centos/\$releasever-strea
 # (optional) Choose a specific NFS-Ganesha package version to install
 # This value is appended directly to nfs-ganesha packages to select their version
 # e.g., "-5.5-1.el8s"
-ARG GANESHA_PACKAGE_VERSION=
+ARG GANESHA_PACKAGE_VERSION=""
 
 # (optional) Used as URL "ref" for selecting Shaman packages.
 # Will force use of shaman packages if set to something other than CEPH_VERSION_NAME.
@@ -27,7 +27,7 @@ ARG GANESHA_PACKAGE_VERSION=
 ARG CEPH_REF="${CEPH_VERSION_NAME}"
 
 # (optional) Set this to select a specific Ceph Shaman SHA1 build directly.
-ARG CEPH_SHA1=
+ARG CEPH_SHA1=""
 
 # (optional) Set to "crimson" to install crimson packages.
 ARG OSD_FLAVOR="default"
