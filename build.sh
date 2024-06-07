@@ -4,6 +4,9 @@ CFILE=${1:-Containerfile}
 shift || true
 
 podman build --squash  -f $CFILE "${@}" 2>&1 | tee ${0}.out
+# check error return of podman
+if [[ ${PIPESTATUS[0]} -ne 0 ]] ; then exit ${PIPESTATUS[0]}; fi
+
 image_id=$(tail -1 ${0}.out)
 
 # grab useful image attributes for building the tag
