@@ -5,7 +5,7 @@ FROM $FROM_IMAGE
 ARG FROM_IMAGE
 #
 # The name of the Ceph release.
-# e.g., "main", "reef", "qincy"
+# e.g., "main", "reef", "quincy"
 ARG CEPH_VERSION_NAME="main"
 
 # (optional) Choose a specific Ceph package version to install
