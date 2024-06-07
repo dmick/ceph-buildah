@@ -1,4 +1,4 @@
-ARG FROM_IMAGE="quay.io/centos/centos:stream8"
+ARG FROM_IMAGE="quay.io/centos/centos:stream9"
 FROM $FROM_IMAGE
 
 # allow FROM_IMAGE to be visible inside this stage
@@ -61,10 +61,10 @@ RUN set -x && \
     curl -s -L https://shaman.ceph.com/api/repos/tcmu-runner/main/latest/centos/8/repo?arch=$(arch) -o /etc/yum.repos.d/tcmu-runner.repo && \
     case "${CEPH_VERSION_NAME}" in \
         main) \
-            curl -s -L https://shaman.ceph.com/api/repos/ceph-iscsi/main/latest/centos/8/repo -o /etc/yum.repos.d/ceph-iscsi.repo ;\
+            curl -s -L https://shaman.ceph.com/api/repos/ceph-iscsi/main/latest/centos/9/repo -o /etc/yum.repos.d/ceph-iscsi.repo ;\
             ;;\
         quincy|reef) \
-            curl -s -L https://download.ceph.com/ceph-iscsi/3/rpm/el8/ceph-iscsi.repo -o /etc/yum.repos.d/ceph-iscsi.repo ;\
+            curl -s -L https://download.ceph.com/ceph-iscsi/3/rpm/el9/ceph-iscsi.repo -o /etc/yum.repos.d/ceph-iscsi.repo ;\
             ;;\
     esac
 
@@ -74,15 +74,15 @@ RUN set -x && \
     ARCH=$(arch); if [ "${ARCH}" == "aarch64" ]; then ARCH="arm64"; fi ;\
     IS_RELEASE=0 ;\
     if [ -n "${CEPH_SHA1}" ]; then \
-        REPO_URL=$(curl -s "https://shaman.ceph.com/api/search/?project=ceph&distros=centos/8/${ARCH}&sha1=${CEPH_SHA1}" | jq -r .[0].url ) ;\
+        REPO_URL=$(curl -s "https://shaman.ceph.com/api/search/?project=ceph&distros=centos/9/${ARCH}&sha1=${CEPH_SHA1}" | jq -r .[0].url ) ;\
     elif [ "${CEPH_VERSION_NAME}" == "main" ] || [ "${CEPH_VERSION_NAME}" != "${CEPH_REF}" ]; then \
         # TODO: this can return different ceph builds (SHA1) for x86 vs. arm runs. is it important to fix?
-        REPO_URL=$(curl -s "https://shaman.ceph.com/api/search/?project=ceph&distros=centos/8/${ARCH}&flavor=${OSD_FLAVOR}&ref=${CEPH_REF}&sha1=latest" | jq -r .[0].url) ;\
+        REPO_URL=$(curl -s "https://shaman.ceph.com/api/search/?project=ceph&distros=centos/9/${ARCH}&flavor=${OSD_FLAVOR}&ref=${CEPH_REF}&sha1=latest" | jq -r .[0].url) ;\
     else \
         IS_RELEASE=1 ;\
-        REPO_URL="http://download.ceph.com/rpm-${CEPH_VERSION_NAME}/el8/" ;\
+        REPO_URL="http://download.ceph.com/rpm-${CEPH_VERSION_NAME}/el9/" ;\
     fi && \
-    rpm -Uvh "$REPO_URL/noarch/ceph-release-1-${IS_RELEASE}.el8.noarch.rpm"
+    rpm -Uvh "$REPO_URL/noarch/ceph-release-1-${IS_RELEASE}.el9.noarch.rpm"
 
 # Copr repos
 # scikit for mgr-diskprediction-local
@@ -161,7 +161,7 @@ RUN echo "gdisk hostname procps-ng sg3_utils" >>packages.txt
 
 RUN echo "=== PACKAGES TO BE INSTALLED ==="; cat packages.txt
 RUN echo "=== INSTALLING ===" ; \
-dnf install -y --setopt=install_weak_deps=False --setopt=skip_missing_names_on_install=False --enablerepo=powertools $(cat packages.txt)
+dnf install -y --setopt=install_weak_deps=False --setopt=skip_missing_names_on_install=False --enablerepo=crb $(cat packages.txt)
 
 # XXX why isn't this done in the ganesha package?
 RUN mkdir -p /var/run/ganesha
