@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 CFILE=${1:-Containerfile}
-shift
+shift || true
 
 podman build --squash  -f $CFILE "${@}" 2>&1 | tee ${0}.out
 image_id=$(tail -1 ${0}.out)
